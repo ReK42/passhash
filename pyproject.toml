@@ -1,0 +1,127 @@
+#########################
+# Project and Packaging #
+#########################
+[project]
+name = "passhash"
+dynamic = ["version"]
+description = "Generate password hashes based on various standards."
+requires-python = ">=3.10"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "ReK42", email = "ReK42@users.noreply.github.com"},
+]
+maintainers = [
+    {name = "ReK42", email = "ReK42@users.noreply.github.com"},
+]
+keywords = ["bandcamp", "music"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Telecommunications Industry",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+    "Topic :: System :: Networking",
+    "Topic :: System :: Systems Administration",
+    "Topic :: System :: Systems Administration :: Authentication/Directory",
+    "Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dependencies = [
+    "passlib == 1.7.4",
+    "PyYAML == 6.0.1",
+]
+
+[project.urls]
+Repository = "https://github.com/ReK42/passhash"
+Issues = "https://github.com/ReK42/passhash/issues"
+
+[project.scripts]
+passhash = "passhash:main"
+
+[project.optional-dependencies]
+tests = [
+    "black == 23.7.0",
+    "mypy == 1.4.1",
+    "ruff == 0.0.278",
+]
+build = [
+    "setuptools == 68.0.0",
+    "setuptools-scm == 7.1.0",
+    "build == 0.10.0",
+    "twine == 4.0.2"
+]
+
+[build-system]
+requires = ["setuptools", "setuptools_scm[toml]"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+bcamp_dl = ["py.typed"]
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+write_to = "src/passhash/_version.py"
+tag_regex = '^(?:[\w-]+[-/])?(?P<version>[vV]?\d+(?:\.\d+){0,2}[^\+]*)(?:\+.*)?$'
+
+###########################
+# Development Environment #
+###########################
+[tool.black]
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+cache_dir = ".cache/mypy"
+pretty = true
+files = "src"
+
+[tool.ruff]
+cache-dir = ".cache/ruff"
+show-source = true
+src = ["src"]
+select = ["ALL"]
+ignore = [
+    "ANN101",  # Missing type annotation for self in method
+    "ANN102",  # Missing type annotation for cls in method
+    "D105",    # Missing docstring in magic method
+    "D107",    # Missing docstring in __init__
+    "EXE001",  # Shebang is present but file is not executable
+    "FBT002",  # Boolean default value in function definition
+    "RET501",  # Do not explicitly return None in function if it is the only possible return value
+
+    "CPY",     # flake8-copyright
+    "D203",    # Use D211 instead
+    "D213",    # Use D212 instead
+    "I001",    # Use black instead
+
+    "S",       # TODO: Fix and enable
+    "BLE",     # TODO: Fix and enable
+    "EM",      # TODO: Fix and enable
+    "ISC",     # TODO: Fix and enable
+    "TRY",     # TODO: Fix and enable
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["E402", "F401"]
+
+[tool.ruff.mccabe]
+max-complexity = 15
