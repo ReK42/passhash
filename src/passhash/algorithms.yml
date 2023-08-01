@@ -1,77 +1,77 @@
 ---
 unix:
-  - opt: unix-bcrypt
+  - opt: --unix-bcrypt
     const: bcrypt
     help: bcrypt
-  - opt: unix-des
+  - opt: --unix-des
     const: des_crypt
     help: DES
-  - opt: unix-md5
+  - opt: --unix-md5
     const: md5_crypt
     help: MD5
-  - opt: unix-pbkdf2-sha1
+  - opt: --unix-pbkdf2-sha1
     const: pbkdf2_sha1
     help: PBKDF2 SHA1
-  - opt: unix-pbkdf2-sha256
+  - opt: --unix-pbkdf2-sha256
     const: pbkdf2_sha256
     help: PBKDF2 SHA2-256
-  - opt: unix-pbkdf2-sha512
+  - opt: --unix-pbkdf2-sha512
     const: pbkdf2_sha512
     help: PBKDF2 SHA2-512
-  - opt: unix-scrypt
+  - opt: --unix-scrypt
     const: scrypt
     help: scrypt
-  - opt: unix-sha1
+  - opt: --unix-sha1
     const: sha1_crypt
     help: SHA1
-  - opt: unix-sha256
+  - opt: --unix-sha256
     const: sha256_crypt
     help: SHA2-256
-  - opt: unix-sha512
+  - opt: --unix-sha512
     const: sha512_crypt
     help: SHA2-512 (default)
 
 windows:
-  - opt: windows-lmhash
+  - opt: --windows-lmhash
     const: lmhash
     help: LanManager Hash
-  - opt: windows-msdcc
+  - opt: --windows-msdcc
     const: msdcc
     help: Microsoft Domain Cached Credentials
-  - opt: windows-msdcc2
+  - opt: --windows-msdcc2
     const: msdcc2
     help: Microsoft Domain Cached Credentials v2
-  - opt: windows-nthash
+  - opt: --windows-nthash
     const: nthash
     help: NT Hash
 
 cisco:
-  - opt: cisco-asa
+  - opt: --cisco-asa
     const: cisco_asa
     help: Cisco ASA
-  - opt: cisco-type-5
+  - opt: --cisco-type-5
     const: md5_crypt
     help: Cisco type 5 (MD5)
-  - opt: cisco-type-7
+  - opt: --cisco-type-7
     const: cisco_type7
     help: Cisco type 7
 
 ldap:
-  - opt: ldap-md5
+  - opt: --ldap-md5
     const: ldap_md5
     help: LDAP MD5
-  - opt: ldap-salted-md5
+  - opt: --ldap-salted-md5
     const: ldap_salted_md5
     help: LDAP Salted MD5
-  - opt: ldap-sha1
+  - opt: --ldap-sha1
     const: ldap_sha1
     help: LDAP SHA1
-  - opt: ldap-salted-sha1
+  - opt: --ldap-salted-sha1
     const: ldap_salted_sha1
     help: LDAP Salted SHA1
-  - opt: ldap-salted-sha256
+  - opt: --ldap-salted-sha256
     const: ldap_salted_sha256
     help: LDAP Salted SHA2-256
-  - opt: ldap-salted-sha512
+  - opt: --ldap-salted-sha512
     const: ldap_salted_sha512
     help: LDAP Salted SHA2-512

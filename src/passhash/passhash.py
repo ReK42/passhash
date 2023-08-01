@@ -1,31 +1,28 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import argparse
-import getpass
-import os.path
+"""Generate password hashes based on various standards."""
 import sys
 
-from passhash import export, __name__, __version__, __copyright__
+from argparse import ArgumentParser, Namespace, SUPPRESS
+from getpass import getpass
+from pathlib import Path
+from time import time
 
-try:
-    from yaml import safe_load
-except ImportError:
-    sys.stderr.write(
-        "Error: Unable to import yaml module, ",
-        "please install via 'pip install pyyaml'\n",
-    )
-    sys.exit(1)
+from passlib import pwd
+from passlib.exc import MissingBackendError
+from passlib.registry import get_crypt_handler
+from rich.console import Console
+from rich.progress import (
+    Progress,
+    TextColumn,
+    BarColumn,
+    MofNCompleteColumn,
+    TaskProgressColumn,
+    TimeElapsedColumn,
+)
+from rich.table import Table, Column
+from yaml import safe_load
 
-try:
-    from passlib import pwd
-    from passlib.exc import MissingBackendError
-    from passlib.registry import get_crypt_handler
-except ImportError:
-    sys.stderr.write(
-        "Error: Unable to import passlib module, ",
-        "please install via 'pip install passlib'\n",
-    )
-    sys.exit(1)
+from passhash import __name__, __version__, __copyright__
 
 
 # Load the list of supported algorithms
@@ -35,16 +32,15 @@ _algorithm_types = {
     "cisco": "Cisco Algorithms",
     "ldap": "LDAP Algorithms",
 }
-_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "algorithms.yml")
-with open(_path, "r") as f:
+with Path(Path(__file__).parent.resolve(), "algorithms.yml").open() as f:
     _algorithms = safe_load(f)
-ALGORITHMS = {a["const"] for t in _algorithm_types.keys() for a in _algorithms[t]}
+ALGORITHMS = {a["const"] for t in _algorithm_types for a in _algorithms[t]}
 
 
-def handle_cli() -> "argparse.Namespace":
+def _handle_cli() -> Namespace:
     """Handle the CLI arguments and prompting."""
     # Create an argument parser with global options
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         prog=__name__,
         add_help=False,
         usage=f"{__name__} [options]",
@@ -55,7 +51,7 @@ def handle_cli() -> "argparse.Namespace":
         "-a",
         "--all",
         action="store_true",
-        help=argparse.SUPPRESS,
+        help=SUPPRESS,
     )
     optional.add_argument(
         "-g",
@@ -138,77 +134,102 @@ def handle_cli() -> "argparse.Namespace":
     if args.rounds is not None:
         args.params["rounds"] = args.rounds
 
+    # Prepare the username
+    if args.username is None and (
+        "msdcc" in args.algorithms or "msdcc2" in args.algorithms
+    ):
+        args.username = input("Username: ")
+
     # Prepare the password to hash
     if args.generate:
         args.password = pwd.genword(entropy="secure", charset="ascii_50")
-        sys.stdout.write(f"Generated Password: {args.password}\n\n")
+        sys.stdout.write(f"Password: {args.password}\n")
     else:
-        args.password = getpass.getpass()
+        args.password = getpass()
 
     return args
 
 
-@export
 def main() -> int:
-    """Main execution thread."""
-    retval = 0
-    args = handle_cli()
-    # Hash using each selected algorithm and print
-    for algorithm in args.algorithms:
-        # Load the correct crypt handler
-        try:
-            handler = get_crypt_handler(algorithm)
-        except KeyError:
-            sys.stderr.write(f"{algorithm}: ERROR loading algorithm handler\n")
-            retval += 1
-            continue
-
-        # Load the relevant crypt parameters
-        handler_params = {
-            k: args.params[k] for k in args.params.keys() if k in handler.setting_kwds
-        }
-
-        # Try to load the configured crypt handler
-        try:
-            try:
-                crypt = handler.using(**handler_params)
-            except TypeError:  # Attempt to convert the salt to bytes
-                handler_params["salt"] = handler_params["salt"].encode("utf-8")
-                try:
-                    crypt = handler.using(**handler_params)
-                except TypeError as e:
-                    sys.stderr.write(f"{algorithm}: ERROR invalid parameter - {e}\n")
+    """Execute CLI."""
+    try:
+        retval = 0
+        args = _handle_cli()
+        results = {}
+        console = Console()
+        with Progress(
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TimeElapsedColumn(),
+            MofNCompleteColumn(),
+            TaskProgressColumn(),
+            console=console,
+            transient=True,
+        ) as progress:
+            task = progress.add_task(
+                "Calculating hashes...",
+                total=len(args.algorithms),
+            )
+            # Hash using each selected algorithm and print
+            for algorithm in args.algorithms:
+                # Load the correct crypt handler
+                handler = get_crypt_handler(algorithm, None)
+                if handler is None:
+                    results[algorithm] = (
+                        "[bold red]:warning: Error loading backend[/bold red]",
+                        "",
+                    )
+                    progress.advance(task)
                     retval += 1
                     continue
-        except ValueError as e:
-            sys.stderr.write(f"{algorithm}: ERROR invalid parameter - {e}\n")
-            retval += 1
-            continue
 
-        # Create the password hash and print
-        try:
-            if algorithm in ["msdcc", "msdcc2"] and args.username is not None:
-                password_hash = crypt.hash(args.password, user=args.username)
-            else:
-                password_hash = crypt.hash(args.password)
-        except TypeError as e:
-            sys.stderr.write(f"{algorithm}: ERROR invalid parameter - {e}\n")
-            retval += 1
-            continue
-        except MissingBackendError as e:
-            sys.stderr.write(f"{algorithm}: ERROR missing backend - {e}\n")
-            retval += 1
-            continue
+                # Load the relevant crypt parameters
+                handler_params = {
+                    k: args.params[k] for k in args.params if k in handler.setting_kwds
+                }
+                crypt = handler.using(**handler_params)
 
-        # Output the password hash
-        sys.stdout.write(f"{algorithm}: {password_hash}\n")
+                # Create the password hash and print
+                start = time()
+                try:
+                    if algorithm in ["msdcc", "msdcc2"]:
+                        password_hash = crypt.hash(args.password, user=args.username)
+                    else:
+                        password_hash = crypt.hash(args.password)
+                except TypeError:  # noqa: PERF203
+                    results[algorithm] = (
+                        "[bold red]:warning: Invalid parameter[/bold red]",
+                        "",
+                    )
+                    progress.advance(task)
+                    retval += 1
+                    continue
+                except MissingBackendError:
+                    results[algorithm] = (
+                        "[bold red]:warning: Missing backend[/bold red]",
+                        "",
+                    )
+                    progress.advance(task)
+                    retval += 1
+                    continue
+                end = time()
 
-    return retval
+                # Output the password hash
+                results[algorithm] = (password_hash, f"{end - start:.3f}s")
+                progress.advance(task)
+        table = Table(
+            Column("Method"),
+            Column("Hash", overflow="fold"),
+            Column("Time"),
+        )
+        for a in sorted(results):
+            table.add_row(a, *results[a])
+        console.print(table)
+        return retval
+    except KeyboardInterrupt:
+        sys.stderr.write("Process aborted by user...\n")
+        return -1
 
 
 if __name__ == "__main__":
-    try:
-        sys.exit(main())
-    except KeyboardInterrupt:
-        sys.stderr.write("Process aborted by user...\n")
-        sys.exit(1)
+    sys.exit(main())

@@ -39,8 +39,10 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "passlib == 1.7.4",
     "PyYAML == 6.0.1",
+    "rich == 13.5.1",
+    "passlib == 1.7.4",
+    "bcrypt == 4.0.1",
 ]
 
 [project.urls]
@@ -55,6 +57,8 @@ tests = [
     "black == 23.7.0",
     "mypy == 1.4.1",
     "ruff == 0.0.278",
+    "types-PyYAML == 6.0.12.11",
+    "types-passlib == 1.7.7.12",
 ]
 build = [
     "setuptools == 68.0.0",

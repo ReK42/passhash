@@ -6,6 +6,9 @@ repos:
       - id: mypy
         language_version: python3.11
         files: src
+        additional_dependencies:
+          - types-PyYAML
+          - types-passlib
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.278
     hooks:
