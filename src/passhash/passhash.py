@@ -196,7 +196,7 @@ def main() -> int:
                         password_hash = crypt.hash(args.password, user=args.username)
                     else:
                         password_hash = crypt.hash(args.password)
-                except TypeError:  # noqa: PERF203
+                except TypeError:
                     results[algorithm] = (
                         "[bold red]:warning: Invalid parameter[/bold red]",
                         "",
