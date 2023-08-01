@@ -1,5 +1,14 @@
 # passhash
 
+[![License](https://img.shields.io/github/license/ReK42/passhash)](https://github.com/ReK42/passhash/blob/main/LICENSE)
+[![PyPi Version](https://img.shields.io/pypi/v/passhash.svg)](https://pypi.python.org/pypi/passhash)
+[![PyPI Status](https://img.shields.io/pypi/status/passhash.svg)](https://pypi.python.org/pypi/passhash)
+[![Python Versions](https://img.shields.io/pypi/pyversions/passhash.svg)](https://pypi.python.org/pypi/passhash)
+[![Last Commit](https://img.shields.io/github/last-commit/ReK42/passhash/main?logo=github)](https://github.com/ReK42/passhash/commits/main)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/ReK42/passhash/build.yml?logo=github)](https://github.com/ReK42/passhash/actions)
+[![Linted by Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Code Style by Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Generate password hashes based on various standards. Most UNIX crypt standards are
 supported, along with a selection of Microsoft, Cisco, and LDAP-based standards.
 
@@ -84,4 +93,13 @@ Use `--all` to generate all supported hash algorithms:
 
 `passhash --generate --all`
 
-![](./docs/screenshots/example_generate_all.gif)
+![Example Screenshot of --generate --all](./docs/screenshots/example_generate_all.gif)
+
+## Development Environment
+
+```sh
+git clone https://github.com/ReK42/passhash.git
+cd passhash
+pre-commit install
+pip install -e .[tests]
+```
