@@ -84,4 +84,4 @@ Use `--all` to generate all supported hash algorithms:
 
 `passhash --generate --all`
 
-![](./docs/screenshots/generate_all.mp4)
+![](./docs/screenshots/example_generate_all.gif)
