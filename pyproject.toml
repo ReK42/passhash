@@ -61,7 +61,7 @@ tests = [
     "types-passlib == 1.7.7.13",
 ]
 build = [
-    "setuptools == 68.0.0",
+    "setuptools == 68.1.2",
     "setuptools-scm == 7.1.0",
     "build == 0.10.0",
     "twine == 4.0.2"
